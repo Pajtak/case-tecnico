@@ -4,6 +4,9 @@ const bodyParser = require('body-parser')
 const knex = require('knex');
 const knexConfig = require('./database/database');
 const router = require("./routes/routes")
+const cors = require("cors");
+
+app.use(cors());
 
 
 

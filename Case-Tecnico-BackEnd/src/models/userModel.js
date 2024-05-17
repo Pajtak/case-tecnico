@@ -1,6 +1,5 @@
 const knex = require("../database/database");
 const bcrypt = require("bcrypt");
-const passTokenModel = require("./passTokenModel");
 
 class userModel {
   async new(email, password, name) {
@@ -34,6 +33,7 @@ class userModel {
         .table("users");
 
       if (result.length > 0) {
+       
         return result[0];
       } else {
         return undefined;
@@ -93,31 +93,20 @@ class userModel {
     }
   }
 
-  async update(id, email, name, role) {
+  async update(id, name, role) {
     let user = await this.findById(id);
-
+  
     if (user != undefined) {
       let editUser = {};
-
-      if (email != undefined) {
-        if (email != user.email) {
-          let result = await this.findEmail(email);
-          if (!result) {
-            editUser.email = email;
-          } else {
-            return { status: false, err: "O e-mail já está cadastrado" };
-          }
-        }
-      }
-
+  
       if (name != undefined) {
         editUser.name = name;
       }
-
+  
       if (role != undefined) {
         editUser.role = role;
       }
-
+  
       try {
         await knex.update(editUser).where({ id: id }).table("users");
         return { status: true };
@@ -132,7 +121,7 @@ class userModel {
 
   async deleteUser(id) {
     let user = await this.findById(id);
-
+    console.log(id)
     if (user != undefined) {
       try {
         await knex.delete().where({ id: id }).table("users");
@@ -145,17 +134,7 @@ class userModel {
     }
   }
 
-  async changePassword(newPassword, id, token) {
-    let hash = await bcrypt.hash(newPassword, 10);
-
-    try {
-      await knex.update({ password: hash }).where({ id: id }).table("users");
-    } catch (err) {
-      return { status: false, err: err };
-    }
-
-    await passTokenModel.setUsed(token);
-  }
+  
 }
 
 module.exports = new userModel();
